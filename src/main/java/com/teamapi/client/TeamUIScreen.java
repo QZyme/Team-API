@@ -36,8 +36,8 @@ public class TeamUIScreen extends Screen {
                         Function<String, Text> teamDisplayNameMapper,
                         BiConsumer<String, String> rowClickHandler) {
         super(title);
-        this.teamDisplayNameMapper  = teamDisplayNameMapper;
-        this.rowClickHandler  = rowClickHandler != null ? rowClickHandler : (p, t) -> {};
+        this.teamDisplayNameMapper = teamDisplayNameMapper;
+        this.rowClickHandler = rowClickHandler != null ? rowClickHandler : (p, t) -> {};
     }
 
     public TeamUIScreen(Text title, Function<String, Text> teamDisplayNameMapper) {
@@ -52,13 +52,13 @@ public class TeamUIScreen extends Screen {
     }
 
     protected void setupCloseButton() {
-        this.closeButton  = ButtonWidget.builder(
+        this.closeButton = ButtonWidget.builder(
                         Text.literal(" 关闭"),
                         button -> close()
                 )
                 .dimensions(
-                        (this.width  - BUTTON_WIDTH) / 2,
-                        this.height  - BOTTOM_BUTTON_Y_OFFSET,
+                        (this.width - BUTTON_WIDTH) / 2,
+                        this.height - BOTTOM_BUTTON_Y_OFFSET,
                         BUTTON_WIDTH,
                         BUTTON_HEIGHT
                 )
@@ -79,8 +79,8 @@ public class TeamUIScreen extends Screen {
 
     protected void renderTeamRows() {
         int yPos = TOP_MARGIN;
-        for (Map.Entry<String, String> entry : teamData.entrySet())  {
-            addTeamRow(entry.getKey(),  entry.getValue(),  yPos);
+        for (Map.Entry<String, String> entry : teamData.entrySet()) {
+            addTeamRow(entry.getKey(), entry.getValue(), yPos);
             yPos += ROW_SPACING;
         }
     }
@@ -91,7 +91,7 @@ public class TeamUIScreen extends Screen {
                 .append(teamDisplayNameMapper.apply(teamId));
 
         this.addDrawableChild(
-                ButtonWidget.builder(displayText,  button -> rowClickHandler.accept(playerName,  teamId))
+                ButtonWidget.builder(displayText, button -> rowClickHandler.accept(playerName, teamId))
                         .dimensions(
                                 (width - BUTTON_WIDTH) / 2,
                                 yPos,
@@ -106,14 +106,14 @@ public class TeamUIScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         renderBackground(context);
         renderTitle(context);
-        super.render(context,  mouseX, mouseY, delta);
+        super.render(context, mouseX, mouseY, delta);
     }
 
     public void renderBackground(DrawContext context) {
-        if (this.client  != null && this.client.world  != null) {
-            context.fillGradient(0,  0, this.width,  this.height,  0xC0101010, 0xD0101010);
+        if (this.client != null && this.client.world != null) {
+            context.fillGradient(0, 0, this.width, this.height, 0xC0101010, 0xD0101010);
         } else {
-            context.fill(0,  0, this.width,  this.height,  0xFF000000);
+            context.fill(0, 0, this.width, this.height, 0xFF000000);
         }
     }
 
@@ -121,7 +121,7 @@ public class TeamUIScreen extends Screen {
         context.drawCenteredTextWithShadow(
                 this.textRenderer,
                 this.title,
-                this.width  / 2,
+                this.width / 2,
                 TITLE_Y,
                 0xFFFFFF
         );
@@ -132,7 +132,7 @@ public class TeamUIScreen extends Screen {
         if (newData != null) {
             this.teamData.putAll(newData);
         }
-        if (this.client  != null && this.client.currentScreen  == this) {
+        if (this.client != null && this.client.currentScreen == this) {
             refreshTeamList();
         }
     }
@@ -144,12 +144,13 @@ public class TeamUIScreen extends Screen {
 
     /**
      * 打开队伍UI的快捷方法
-     */
-    public static void open(Function<String, Text> teamDisplayNameMapper) {
-        MinecraftClient.getInstance().setScreen(new  TeamUIScreen(
+     **/
+    public static TeamUIScreen open(Function<String, Text> teamDisplayNameMapper) {
+        MinecraftClient.getInstance().setScreen(new TeamUIScreen(
                 Text.literal(" 队伍信息"),
                 teamDisplayNameMapper
         ));
+        return null;
     }
 
     /**
@@ -157,7 +158,7 @@ public class TeamUIScreen extends Screen {
      */
     public static void open(Function<String, Text> teamDisplayNameMapper,
                             BiConsumer<String, String> rowClickHandler) {
-        MinecraftClient.getInstance().setScreen(new  TeamUIScreen(
+        MinecraftClient.getInstance().setScreen(new TeamUIScreen(
                 Text.literal(" 队伍信息"),
                 teamDisplayNameMapper,
                 rowClickHandler

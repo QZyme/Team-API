@@ -44,8 +44,8 @@ public class TeamConfig implements ConfigData {
          * @param color 颜色枚举
          */
         public TeamInfo(String displayName, Formatting color) {
-            this.displayName  = displayName;
-            this.color  = color;
+            this.displayName = displayName;
+            this.color = color;
         }
 
         // Getter方法
@@ -55,10 +55,10 @@ public class TeamConfig implements ConfigData {
         public boolean canFly() { return canFly; }
 
         // Setter方法
-        public void setDisplayName(String displayName) { this.displayName  = displayName; }
-        public void setColor(Formatting color) { this.color  = color; }
-        public void setIcon(String icon) { this.icon  = icon; }
-        public void setCanFly(boolean canFly) { this.canFly  = canFly; }
+        public void setDisplayName(String displayName) { this.displayName = displayName; }
+        public void setColor(Formatting color) { this.color = color; }
+        public void setIcon(String icon) { this.icon = icon; }
+        public void setCanFly(boolean canFly) { this.canFly = canFly; }
     }
 
     @ConfigEntry.Gui.CollapsibleObject
@@ -70,8 +70,8 @@ public class TeamConfig implements ConfigData {
     }
 
     private void initializeDefaultTeams() {
-        teams.put(RED_TEAM,  new TeamInfo("红队", Formatting.RED));
-        teams.put(BLUE_TEAM,  new TeamInfo("蓝队", Formatting.BLUE));
+        teams.put(RED_TEAM, new TeamInfo("红队", Formatting.RED));
+        teams.put(BLUE_TEAM, new TeamInfo("蓝队", Formatting.BLUE));
     }
 
     /**
@@ -91,14 +91,25 @@ public class TeamConfig implements ConfigData {
     @Override
     public void validatePostLoad() {
         // 确保存在基本队伍配置
-        teams.putIfAbsent(RED_TEAM,  new TeamInfo("红队", Formatting.RED));
-        teams.putIfAbsent(BLUE_TEAM,  new TeamInfo("蓝队", Formatting.BLUE));
+        teams.putIfAbsent(RED_TEAM, new TeamInfo("红队", Formatting.RED));
+        teams.putIfAbsent(BLUE_TEAM, new TeamInfo("蓝队", Formatting.BLUE));
 
         // 验证颜色配置
-        teams.values().forEach(info  -> {
-            if (info.color  == null) {
-                info.color  = Formatting.WHITE;
+        teams.values().forEach(info -> {
+            if (info.color == null) {
+                info.color = Formatting.WHITE;
             }
         });
+
+        // 添加更多的配置验证逻辑
+        for (String key : teams.keySet()) {
+            if (key.isEmpty()) {
+                throw new IllegalStateException("Team ID cannot be empty.");
+            }
+            TeamInfo info = teams.get(key);
+            if (info.getDisplayName() == null || info.getColor() == null) {
+                throw new IllegalStateException("Invalid configuration for team: " + key);
+            }
+        }
     }
 }

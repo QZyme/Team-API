@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Environment(EnvType.CLIENT)
 public final class TeamAPIClient implements ClientModInitializer {
     private static final Map<String, String> teamCache = new ConcurrentHashMap<>();
-    private static KeyBinding openTeamUIKey;
-    private static boolean initialized = false;
+    static KeyBinding openTeamUIKey;
+    static boolean initialized = false;
 
     @Override
     public void onInitializeClient() {
@@ -37,18 +37,18 @@ public final class TeamAPIClient implements ClientModInitializer {
     }
 
     private void registerKeyBindings() {
-        openTeamUIKey = KeyBindingHelper.registerKeyBinding(new  KeyBinding(
+        openTeamUIKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.teamapi.open_ui",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_H,
                 "category.teamapi.general"
         ));
 
-        ClientTickEvents.END_CLIENT_TICK.register(client  -> {
-            while (openTeamUIKey.wasPressed())  {
-                if (client.player  != null) {
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            while (openTeamUIKey.wasPressed()) {
+                if (client.player != null) {
                     requestTeamData();
-                    TeamUIScreen.open(teamId  ->
+                    TeamUIScreen.open(teamId ->
                             TeamAPI.getInstance().getTeamDisplayName(teamId)
                     );
                 }
@@ -57,12 +57,12 @@ public final class TeamAPIClient implements ClientModInitializer {
     }
 
     private void registerClientNetworkHandlers() {
-        ClientPlayNetworking.registerGlobalReceiver(TeamAPI.SYNC_TEAMS,  (client, handler, buf, responseSender) -> {
+        ClientPlayNetworking.registerGlobalReceiver(TeamAPI.SYNC_TEAMS, (client, handler, buf, responseSender) -> {
             Map<String, String> newData = decodeTeamData(buf);
             updateTeamCache(newData);
 
-            client.execute(()  -> {
-                if (client.currentScreen  instanceof TeamUIScreen) {
+            client.execute(() -> {
+                if (client.currentScreen instanceof TeamUIScreen) {
                     ((TeamUIScreen) client.currentScreen).updateTeamData(newData);
                 }
             });
@@ -70,16 +70,16 @@ public final class TeamAPIClient implements ClientModInitializer {
     }
 
     @NotNull
-    private static Map<String, String> decodeTeamData(PacketByteBuf buf) {
+    static Map<String, String> decodeTeamData(PacketByteBuf buf) {
         Map<String, String> newData = new HashMap<>();
         int count = buf.readInt();
         for (int i = 0; i < count; i++) {
-            newData.put(buf.readString(),  buf.readString());
+            newData.put(buf.readString(), buf.readString());
         }
         return newData;
     }
 
-    private static void updateTeamCache(@NotNull Map<String, String> newData) {
+    static void updateTeamCache(@NotNull Map<String, String> newData) {
         teamCache.clear();
         teamCache.putAll(newData);
     }
@@ -88,8 +88,8 @@ public final class TeamAPIClient implements ClientModInitializer {
      * 向服务器请求最新的队伍数据
      */
     public static void requestTeamData() {
-        if (MinecraftClient.getInstance().getNetworkHandler()  != null) {
-            ClientPlayNetworking.send(TeamAPI.REQUEST_TEAMS,  PacketByteBufs.empty());
+        if (MinecraftClient.getInstance().getNetworkHandler() != null) {
+            ClientPlayNetworking.send(TeamAPI.REQUEST_TEAMS, PacketByteBufs.empty());
         }
     }
 
