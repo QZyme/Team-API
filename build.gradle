@@ -65,18 +65,59 @@ jar {
 
 // configure the maven publication
 publishing {
-	publications {
-		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
-			from components.java
-		}
-	}
+    publications {
+        register("mavenJava", MavenPublication) {
+            // 主JAR配置
+            artifact(remapJar) {
+                // 正确设置 builtBy
+                builtBy tasks.remapJar
+                // 移除默认分类器
+                classifier = null
+            }
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+            // 源码JAR配置
+            artifact(remapSourcesJar) {
+                builtBy tasks.remapSourcesJar
+                classifier = 'sources'  // 使用赋值语法
+            }
+
+            // POM配置
+            pom {
+                name = project.name
+                description = 'A team api'
+                url = 'https://github.com/QZyme/Team-API'
+
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'QZyme'
+                        name = 'QZyme'
+                        email = 'QZyme@users.noreply.github.com'
+                    }
+                }
+            }
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+        // 本地仓库（测试用）
+        mavenLocal()
+
+        // GitHub Packages
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/QZyme/Team-API"
+            credentials {
+                username = findProperty("githubUsername") ?: System.getenv("GITHUB_ACTOR")
+                password = findProperty("githubToken") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }
